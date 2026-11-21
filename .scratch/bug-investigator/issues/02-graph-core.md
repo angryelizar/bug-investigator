@@ -1,15 +1,27 @@
 # 02 — Ядро графа в терминале
 
-Status: ready-for-agent
+Status: done
 Blocked by: —
 
 Граф без пауз запускается из терминала на одном баге и доходит до проверенного Fix в рабочей копии.
 
 ## Готово, когда
 
-- [ ] Конфиг: Target Repository, ветка, провайдер и модель (Groq / OpenAI), лимиты; секреты из переменных окружения
-- [ ] State по спецификации, без секретов
-- [ ] Узлы: Подготовка, Analyst (пока только «Подтверждено»), Planner, Coder, Executor (только сборка B), Critic; петля Critic → Planner, максимум 3 попытки
-- [ ] Инструменты: `fff-search` (`grep`, `find_files`), `FileManagementToolkit` (`list_directory`, `read_file`, `write_file` только у Coder), с ограничением объёма ответа
-- [ ] `recursion_limit` на заход агента
-- [ ] Трейсы видны в LangSmith с первого запуска
+- [x] Конфиг: Target Repository, ветка, провайдер и модель (Groq / OpenAI), лимиты; секреты из переменных окружения
+- [x] State по спецификации, без секретов
+- [x] Узлы: Подготовка, Analyst (пока только «Подтверждено»), Planner, Coder, Executor (только сборка B), Critic; петля Critic → Planner, максимум 3 попытки
+- [x] Инструменты: `fff-search` (`grep`, `find_files`), `FileManagementToolkit` (`list_directory`, `read_file`, `write_file` только у Coder), с ограничением объёма ответа
+- [x] `recursion_limit` на заход агента
+- [x] Трейсы видны в LangSmith с первого запуска
+
+## Comments
+
+**2026-11-22 — реализация.** Код в `src/bug_investigator/`, запуск: `uv run bug-investigator "текст Bug Report"` (конфиг — `.env`, образец в `.env.example`).
+
+- Тесты на двух согласованных швах: маршрутизация графа на фейковых этапах (`tests/test_graph.py`) и инструменты модели на временной папке (`tests/test_tools.py`).
+- Прогнано вживую со скриптовой моделью на игрушечном репозитории с настоящим `docker build`: успешный Fix → `fix_ready`; неверный Fix → 3 попытки → «агент сдался». С настоящими Groq/OpenAI и LangSmith ещё не запускалось — нет ключей в окружении.
+- Пока нет Approval и публикации, поэтому успешный финал — outcome `fix_ready` (до тикета 04).
+- `fff-search` 0.11 не помечает определения Java/Python (`is_definition` всегда false), поэтому `definitions_only` дополнен эвристикой по виду строки.
+- `recursion_limit` ограничивает шаги ReAct, а не сами вызовы: при параллельных вызовах инструментов их может быть больше 15 за заход.
+- Перед каждым Planner рабочая копия сбрасывается к клону: повторная попытка планирует по исходному коду.
+- Baseline (и различение «сломан Fix» / «красный main») — в тикете 03.
