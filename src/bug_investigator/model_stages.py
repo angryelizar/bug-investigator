@@ -17,8 +17,10 @@ from pydantic import BaseModel, Field, ValidationError
 
 from bug_investigator import executor, prompts, workspace
 from bug_investigator.config import Settings
+from bug_investigator.github import GitHub
+from bug_investigator.graph import MAX_RELATED_ISSUES
 from bug_investigator.stages import AgentGaveUp, Analysis, Critique, Fix, Workspace
-from bug_investigator.state import BuildResult, InvestigationState
+from bug_investigator.state import Baseline, BuildResult, InvestigationState, RelatedIssue
 from bug_investigator.tools import build_tools
 
 T = TypeVar("T", bound=BaseModel)
@@ -82,11 +84,21 @@ class ModelStages:
     def __init__(self, settings: Settings, model: BaseChatModel):
         self.settings = settings
         self.model = model
+        self.github = GitHub(settings.target_repo)
 
     def prepare(self, state: InvestigationState) -> Workspace:
         return workspace.prepare(
             self.settings.target_repo, self.settings.target_branch, state["bug_report"]
         )
+
+    def baseline(self, state: InvestigationState) -> Baseline:
+        return executor.baseline(_workdir(state), self.settings.build_timeout_s)
+
+    def search_issues(self, terms: list[str]) -> list[RelatedIssue]:
+        return self.github.search_open_issues(terms, limit=MAX_RELATED_ISSUES)
+
+    def comment_on_issue(self, number: int, body: str) -> None:
+        self.github.comment(number, body)
 
     def analyst(self, state: InvestigationState) -> Analysis:
         return self._agent_turn(

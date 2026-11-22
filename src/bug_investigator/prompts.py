@@ -13,13 +13,28 @@ _TOOLS_NOTE = """\
 Число вызовов инструментов ограничено — начинай с поиска по именам из Bug Report."""
 
 ANALYST = f"""\
-Ты Analyst в Bug Investigator. Тебе дан Bug Report. Найди в коде место, где возникает
-описанное неправильное поведение, и вынеси Verdict:
-- "confirmed" — проблемное место в коде найдено;
-- "not_a_bug" — код работает как задумано, поведение из Bug Report ожидаемо;
-- "insufficient_data" — по Bug Report невозможно понять, что сломано.
-В summary: для "confirmed" — файл, метод и почему там ошибка; для остальных — обоснование
-или чего не хватает. Пиши по-русски, коротко. Код не меняй.
+Ты Analyst в Bug Investigator. Тебе даны Bug Report и Baseline — результат сборки
+с тестами исходного кода. Найди в коде место, где возникает описанное неправильное
+поведение, и вынеси Verdict:
+- "confirmed" — только если найдено место в коде, которое объясняет конкретное
+  наблюдаемое поведение из Bug Report (ошибку, неверный результат, упавший тест).
+  Подозрительный или «некрасивый» код, не объясняющий симптом, — не повод для "confirmed".
+- "not_a_bug" — симптом в Bug Report описан, но код работает как задумано и это поведение
+  ожидаемо.
+- "insufficient_data" — в Bug Report нет симптома (ошибки, неверного результата, упавшего
+  теста) или по нему нельзя понять, что сломано. Мнение или пожелание без симптома
+  («версия старая», «код медленный») — это "insufficient_data", а не "not_a_bug".
+- "blocked" — только если в Bug Report есть симптом, Baseline красный и упавшие тесты
+  с этим симптомом не связаны: пока они падают, Fix нельзя проверить. Без симптома —
+  "insufficient_data", даже при красном Baseline. Если упавшие тесты и есть симптом из Bug Report —
+  это не "blocked", а обычный разбор.
+Настройки сборки (версии, плагины, параметры компилятора) проверяй с учётом унаследованных:
+parent POM, BOM, свойства (`<properties>`), конфигурация плагинов по умолчанию.
+В summary: для "confirmed" — файл, метод и почему там ошибка; для "insufficient_data" —
+перечень того, чего не хватает (стек-трейс, шаги, ожидаемый и фактический результат);
+для остальных — обоснование. related_issue — номер issue из списка открытых issue,
+если для "blocked" одно из них описывает причину падения Baseline; иначе null.
+Пиши по-русски, коротко. Код не меняй.
 
 {_TOOLS_NOTE}"""
 
@@ -52,7 +67,30 @@ passed=true только если всё в порядке. В notes — кон�
 
 
 def analyst_task(state: InvestigationState) -> str:
-    return f"Bug Report:\n{state['bug_report']['text']}"
+    parts = [f"Bug Report:\n{state['bug_report']['text']}", _baseline_text(state)]
+    if issues := state.get("related_issues"):
+        listed = "\n".join(f"#{i['number']}: {i['title']}" for i in issues)
+        parts.append(f"Открытые issue, найденные по упавшим тестам и исключениям:\n{listed}")
+    return "\n\n".join(parts)
+
+
+def _baseline_text(state: InvestigationState) -> str:
+    baseline = state.get("baseline")
+    if not baseline:
+        return "Baseline: нет данных."
+    if baseline["exit_code"] == 0:
+        return (
+            "Baseline зелёный: исходный код собирается, все тесты проходят. "
+            "Verdict blocked невозможен."
+        )
+    lines = [f"Baseline красный (код возврата {baseline['exit_code']})."]
+    if baseline["failed_tests"]:
+        lines.append("Упавшие тесты:\n" + "\n".join(f"- {t}" for t in baseline["failed_tests"]))
+    if baseline["exceptions"]:
+        lines.append("Исключения: " + ", ".join(baseline["exceptions"]))
+    if not baseline["failed_tests"]:
+        lines.append(f"Имена упавших тестов не найдены, хвост лога:\n{baseline['log_tail']}")
+    return "\n".join(lines)
 
 
 def planner_task(state: InvestigationState) -> str:
