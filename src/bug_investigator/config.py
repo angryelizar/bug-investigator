@@ -22,7 +22,8 @@ class Settings(BaseSettings):
 
     provider: Provider = "groq"
     model: str
-    temperature: float = 0.0
+    # Unset by default: reasoning models (e.g. OpenAI's) reject the parameter.
+    temperature: float | None = None
 
     # Limits
     max_tool_calls: int = 15  # per agent turn, enforced through recursion_limit
@@ -39,5 +40,5 @@ class Settings(BaseSettings):
     @property
     def recursion_limit(self) -> int:
         # create_react_agent: one model step plus one tool step per call, plus the
-        # first model step and the structured-response step.
+        # first model step and a step of headroom.
         return 2 * self.max_tool_calls + 2

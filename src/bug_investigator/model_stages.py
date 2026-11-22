@@ -7,12 +7,13 @@ from typing import TypeVar
 
 import groq
 import openai
+from langchain_core.exceptions import OutputParserException
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langchain_core.tools import BaseTool
 from langgraph.errors import GraphRecursionError
 from langgraph.prebuilt import create_react_agent
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from bug_investigator import executor, prompts, workspace
 from bug_investigator.config import Settings
@@ -24,6 +25,19 @@ T = TypeVar("T", bound=BaseModel)
 
 # Raised by provider SDKs once their own retries with backoff are exhausted.
 _PROVIDER_ERRORS = (groq.APIError, openai.APIError)
+# Not transient: the provider refused the request itself (model name, parameters...).
+_REQUEST_REJECTED = (groq.BadRequestError, openai.BadRequestError)
+# The model answered, but not in the requested shape (e.g. Groq `tool_use_failed`).
+_FORMAT_ERRORS = (
+    groq.BadRequestError,
+    openai.BadRequestError,
+    OutputParserException,
+    ValidationError,
+)
+_FORMAT_ATTEMPTS = 2
+_FORMAT_REMINDER = (
+    "Верни итог строго в виде JSON-объекта по заданной схеме, без пояснений вне JSON."
+)
 
 _MAX_DIFF_CHARS_FOR_CRITIC = 8_000
 
@@ -48,23 +62,20 @@ class CoderReport(BaseModel):
 
 
 def make_chat_model(settings: Settings) -> BaseChatModel:
+    options: dict = {
+        "model": settings.model,
+        "max_retries": settings.max_retries,
+        "timeout": settings.request_timeout_s,
+    }
+    if settings.temperature is not None:
+        options["temperature"] = settings.temperature
     if settings.provider == "groq":
         from langchain_groq import ChatGroq
 
-        return ChatGroq(
-            model=settings.model,
-            temperature=settings.temperature,
-            max_retries=settings.max_retries,
-            timeout=settings.request_timeout_s,
-        )
+        return ChatGroq(**options)
     from langchain_openai import ChatOpenAI
 
-    return ChatOpenAI(
-        model=settings.model,
-        temperature=settings.temperature,
-        max_retries=settings.max_retries,
-        timeout=settings.request_timeout_s,
-    )
+    return ChatOpenAI(**options)
 
 
 class ModelStages:
@@ -114,17 +125,9 @@ class ModelStages:
 
     def critic(self, state: InvestigationState) -> Critique:
         task = prompts.critic_task(state, max_diff_chars=_MAX_DIFF_CHARS_FOR_CRITIC)
-        structured = self.model.with_structured_output(Critique)
-        try:
-            result = structured.invoke(
-                [SystemMessage(prompts.CRITIC), HumanMessage(task)],
-                {"run_name": "Critic"},
-            )
-        except _PROVIDER_ERRORS as e:
-            raise AgentGaveUp(f"Critic: модель недоступна после повторов ({e})") from e
-        if not isinstance(result, Critique):
-            raise AgentGaveUp("Critic не вернул оценку в нужном формате")
-        return result
+        return self._final_answer(
+            "Critic", [SystemMessage(prompts.CRITIC), HumanMessage(task)], Critique
+        )
 
     def _tools(self, state: InvestigationState, *, can_write: bool) -> list[BaseTool]:
         return build_tools(
@@ -141,9 +144,11 @@ class ModelStages:
         tools: list[BaseTool],
         schema: type[T],
     ) -> T:
-        agent = create_react_agent(
-            self.model, tools, prompt=system_prompt, response_format=schema, name=stage
-        )
+        # The ReAct loop runs without `response_format`: langgraph would then force a
+        # tool call for the final answer, which Groq rejects with `tool_use_failed`
+        # whenever the model answers in plain text. The final answer is requested
+        # separately below, through the provider's JSON-schema mode.
+        agent = create_react_agent(self.model, tools, prompt=system_prompt, name=stage)
         try:
             result = agent.invoke(
                 {"messages": [HumanMessage(task)]},
@@ -154,12 +159,34 @@ class ModelStages:
                 f"{stage} исчерпал лимит в {self.settings.max_tool_calls} "
                 "вызовов инструментов, не придя к ответу"
             ) from e
+        except _REQUEST_REJECTED as e:
+            raise AgentGaveUp(_rejected(stage, e)) from e
         except _PROVIDER_ERRORS as e:
             raise AgentGaveUp(f"{stage}: модель недоступна после повторов ({e})") from e
-        response = result.get("structured_response")
-        if not isinstance(response, schema):
-            raise AgentGaveUp(f"{stage} не вернул ответ в нужном формате")
-        return response
+        return self._final_answer(
+            stage, [SystemMessage(system_prompt), *result["messages"]], schema
+        )
+
+    def _final_answer(self, stage: str, messages: list[BaseMessage], schema: type[T]) -> T:
+        """Ask for the stage result as JSON matching `schema`; retry once on a bad shape."""
+        structured = self.model.with_structured_output(schema, method="json_schema")
+        last_error: Exception | None = None
+        for _ in range(_FORMAT_ATTEMPTS):
+            try:
+                response = structured.invoke(messages, {"run_name": f"{stage} result"})
+            except _FORMAT_ERRORS as e:
+                if isinstance(e, _REQUEST_REJECTED) and not _is_format_failure(e):
+                    raise AgentGaveUp(_rejected(stage, e)) from e
+                last_error = e
+                messages = [*messages, HumanMessage(_FORMAT_REMINDER)]
+                continue
+            except _PROVIDER_ERRORS as e:
+                raise AgentGaveUp(f"{stage}: модель недоступна после повторов ({e})") from e
+            if isinstance(response, schema):
+                return response
+            last_error = TypeError(f"ответ типа {type(response).__name__}")
+            messages = [*messages, HumanMessage(_FORMAT_REMINDER)]
+        raise AgentGaveUp(f"{stage} не вернул итог в нужном формате: {last_error}")
 
 
 def _workdir(state: InvestigationState) -> str:
@@ -167,3 +194,16 @@ def _workdir(state: InvestigationState) -> str:
     if not workdir:
         raise RuntimeError("No working copy: the preparation stage has not run")
     return workdir
+
+
+def _is_format_failure(error: Exception) -> bool:
+    """A 400 caused by the answer's shape, not by the request (model, parameters)."""
+    text = str(error)
+    return "tool_use_failed" in text or "json_validate_failed" in text
+
+
+def _rejected(stage: str, error: Exception) -> str:
+    return (
+        f"{stage}: провайдер отклонил запрос — проверь BI_MODEL и параметры модели "
+        f"в конфиге ({error})"
+    )
