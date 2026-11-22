@@ -43,7 +43,8 @@ PLANNER = f"""\
 причина (файл, метод, условие), Reproduction (тест под src/test, который падает из-за бага
 и проходит после исправления; если тест написать нельзя — объясни почему) и минимальное
 изменение кода по файлам. Не трогай то, что не относится к багу. Если прошлый Fix
-отклонён — учти замечания Critic. Пиши по-русски.
+отклонён — учти замечания Critic; если человек вернул Plan или Fix с комментарием —
+следуй ему. Пиши по-русски.
 
 {_TOOLS_NOTE}"""
 
@@ -75,6 +76,12 @@ def analyst_task(state: InvestigationState) -> str:
             "затем последние открытые. Issue пишут словами пользователя, а не именами "
             f"тестов, — сопоставляй с упавшими тестами по смыслу:\n{listed}"
         )
+    if (approval := state.get("not_a_bug_approval")) and approval["decision"] == "revise":
+        parts += [
+            f"Прошлый итог Analysis (Verdict not_a_bug):\n{state.get('analysis_summary', '')}",
+            "Человек не согласен с Verdict «Не баг» и просит доработать. Его комментарий "
+            f"важнее прошлого итога:\n{approval['comment']}",
+        ]
     return "\n\n".join(parts)
 
 
@@ -102,11 +109,28 @@ def planner_task(state: InvestigationState) -> str:
         f"Bug Report:\n{state['bug_report']['text']}",
         f"Итог Analysis:\n{state.get('analysis_summary', '')}",
     ]
-    if notes := state.get("critic_notes"):
-        parts += [
-            f"Прошлый Plan:\n{state.get('plan', '')}",
-            f"Замечания Critic к прошлому Fix:\n{notes}",
+    # A human's revision resets the attempts: only the Plan right after it gets the
+    # comment, later Critic retries build on that Plan.
+    revisions = (
+        [
+            f"Комментарий человека к {what}:\n{approval['comment']}"
+            for what, approval in [
+                ("прошлому Plan", state.get("plan_approval")),
+                ("прошлому Fix", state.get("fix_approval")),
+            ]
+            if approval and approval["decision"] == "revise"
         ]
+        if state.get("attempts", 0) == 0
+        else []
+    )
+    notes = state.get("critic_notes")
+    if notes or revisions:
+        parts.append(f"Прошлый Plan:\n{state.get('plan', '')}")
+    if notes:
+        parts.append(f"Замечания Critic к прошлому Fix:\n{notes}")
+    if revisions:
+        parts += revisions
+        parts.append("Комментарий человека важнее прошлого Plan: учти его в новом Plan.")
     return "\n\n".join(parts)
 
 

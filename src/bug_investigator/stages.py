@@ -26,6 +26,10 @@ class GitHubError(Exception):
     """A GitHub call failed; the Investigation goes on without its result."""
 
 
+class PublishError(Exception):
+    """Commit, push or Fix PR creation failed."""
+
+
 @dataclass(frozen=True)
 class Workspace:
     workdir: str
@@ -63,3 +67,10 @@ class Stages(Protocol):
     def coder(self, state: InvestigationState) -> Fix: ...
     def build(self, state: InvestigationState) -> BuildResult: ...
     def critic(self, state: InvestigationState) -> Critique: ...
+    def publish(self, state: InvestigationState, title: str, body: str) -> str:
+        """Commit the Fix, push its branch and open the Fix PR; returns the PR URL."""
+        ...
+
+    def cleanup(self, state: InvestigationState) -> None:
+        """Remove the working copy once the Investigation is over."""
+        ...

@@ -19,7 +19,15 @@ from bug_investigator import executor, prompts, workspace
 from bug_investigator.config import Settings
 from bug_investigator.github import GitHub
 from bug_investigator.graph import MAX_RELATED_ISSUES
-from bug_investigator.stages import AgentGaveUp, Analysis, Critique, Fix, Workspace
+from bug_investigator.stages import (
+    AgentGaveUp,
+    Analysis,
+    Critique,
+    Fix,
+    GitHubError,
+    PublishError,
+    Workspace,
+)
 from bug_investigator.state import Baseline, BuildResult, InvestigationState, RelatedIssue
 from bug_investigator.tools import build_tools
 
@@ -143,6 +151,26 @@ class ModelStages:
         return self._final_answer(
             "Critic", [SystemMessage(prompts.CRITIC), HumanMessage(task)], Critique
         )
+
+    def publish(self, state: InvestigationState, title: str, body: str) -> str:
+        branch = state.get("branch")
+        if not branch:
+            raise PublishError("нет ветки: этап подготовки не выполнялся")
+        try:
+            pushed = workspace.commit_and_push(_workdir(state), branch, title)
+        except (RuntimeError, OSError) as e:
+            raise PublishError(str(e)) from e
+        try:
+            return self.github.create_pull_request(
+                head=pushed, base=self.settings.target_branch, title=title, body=body
+            )
+        except GitHubError as e:
+            workspace.delete_remote_branch(_workdir(state), pushed)
+            raise PublishError(f"PR из ветки {pushed} не создан: {e}") from e
+
+    def cleanup(self, state: InvestigationState) -> None:
+        if workdir := state.get("workdir"):
+            workspace.remove(workdir)
 
     def _tools(self, state: InvestigationState, *, can_write: bool) -> list[BaseTool]:
         return build_tools(
