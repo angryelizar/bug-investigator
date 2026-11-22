@@ -17,6 +17,16 @@ def insufficient_data(state: InvestigationState) -> str:
     )
 
 
+def not_a_bug(state: InvestigationState) -> str:
+    return (
+        "**Bug Investigator: Verdict «Не баг»**\n\n"
+        "Код работает как задумано, описанное поведение ожидаемо:\n\n"
+        f"{state.get('analysis_summary', '')}\n\n"
+        "Verdict подтверждён человеком.\n\n"
+        f"{_SIGNATURE}"
+    )
+
+
 def blocked(state: InvestigationState) -> str:
     baseline = state.get("baseline")
     failed = baseline["failed_tests"] if baseline else []

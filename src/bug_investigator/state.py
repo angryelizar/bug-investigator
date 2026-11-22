@@ -9,7 +9,6 @@ from typing import Literal, NotRequired, TypedDict
 Verdict = Literal["confirmed", "not_a_bug", "insufficient_data", "blocked"]
 
 Outcome = Literal[
-    "fix_ready",  # Fix passed Verification; Approval and publication come in ticket 04
     "pr_created",
     "rejected",
     "gave_up",
@@ -23,6 +22,14 @@ class BugReport(TypedDict):
     text: str
     source: Literal["chat", "issue"]
     issue_number: NotRequired[int]
+    title: NotRequired[str]  # the issue's title; also the Fix PR's
+
+
+class Approval(TypedDict):
+    """A human's answer at a pause; `comment` matters for "revise"."""
+
+    decision: Literal["approve", "reject", "revise"]
+    comment: str
 
 
 class BuildResult(TypedDict):
@@ -52,15 +59,17 @@ class InvestigationState(TypedDict):
     verdict: NotRequired[Verdict]
     analysis_summary: NotRequired[str]
     related_issue: NotRequired[int]  # the issue Analyst named as the cause of "blocked"
+    not_a_bug_approval: NotRequired[Approval]
     plan: NotRequired[str]
-    plan_approval: NotRequired[str]
+    plan_approval: NotRequired[Approval]
     fix_diff: NotRequired[str]
     fix_explanation: NotRequired[str]
     reproduced: NotRequired[bool]
     build_result: NotRequired[BuildResult]
     critic_notes: NotRequired[str]
+    verification_passed: NotRequired[bool]  # build green, Fix not empty, Critic agreed
     attempts: NotRequired[int]
-    fix_approval: NotRequired[str]
+    fix_approval: NotRequired[Approval]
     outcome: NotRequired[Outcome]
     outcome_reason: NotRequired[str]
     pr_url: NotRequired[str]
