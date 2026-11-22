@@ -128,7 +128,7 @@ def _baseline(state: dict) -> str:
         return "зелёный"
     failed = ", ".join(baseline.get("failed_tests") or []) or "имена тестов не найдены"
     issues = len(state.get("related_issues") or [])
-    return f"красный ({failed}); открытых issue по ним: {issues}"
+    return f"красный ({failed}); открытых issue для Analyst: {issues}"
 
 
 def _print_result(state: dict) -> None:

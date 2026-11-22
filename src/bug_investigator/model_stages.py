@@ -97,6 +97,9 @@ class ModelStages:
     def search_issues(self, terms: list[str]) -> list[RelatedIssue]:
         return self.github.search_open_issues(terms, limit=MAX_RELATED_ISSUES)
 
+    def recent_open_issues(self, limit: int) -> list[RelatedIssue]:
+        return self.github.recent_open_issues(limit)
+
     def comment_on_issue(self, number: int, body: str) -> None:
         self.github.comment(number, body)
 

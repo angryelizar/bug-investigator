@@ -70,7 +70,11 @@ def analyst_task(state: InvestigationState) -> str:
     parts = [f"Bug Report:\n{state['bug_report']['text']}", _baseline_text(state)]
     if issues := state.get("related_issues"):
         listed = "\n".join(f"#{i['number']}: {i['title']}" for i in issues)
-        parts.append(f"Открытые issue, найденные по упавшим тестам и исключениям:\n{listed}")
+        parts.append(
+            "Открытые issue: сначала найденные по именам упавших тестов и исключений, "
+            "затем последние открытые. Issue пишут словами пользователя, а не именами "
+            f"тестов, — сопоставляй с упавшими тестами по смыслу:\n{listed}"
+        )
     return "\n\n".join(parts)
 
 

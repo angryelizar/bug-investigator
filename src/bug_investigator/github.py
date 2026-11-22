@@ -6,6 +6,7 @@ passes through this process's state or traces.
 import json
 import re
 import subprocess
+from typing import Any
 
 from bug_investigator.stages import GitHubError
 from bug_investigator.state import RelatedIssue
@@ -41,6 +42,27 @@ class GitHub:
             for i in found.get("items", [])[:limit]
         ]
 
+    def recent_open_issues(self, limit: int) -> list[RelatedIssue]:
+        """Latest open issues; the endpoint also returns PRs, which are dropped."""
+        items = self._api(
+            "-X",
+            "GET",
+            f"repos/{self._slug()}/issues",
+            "-f",
+            "state=open",
+            "-f",
+            "sort=created",
+            "-f",
+            "direction=desc",
+            "-f",
+            f"per_page={min(limit * 2, 100)}",
+        )
+        issues = [i for i in items if "pull_request" not in i]
+        return [
+            RelatedIssue(number=i["number"], title=i["title"], url=i["html_url"])
+            for i in issues[:limit]
+        ]
+
     def comment(self, number: int, body: str) -> None:
         self._api(
             "-X",
@@ -56,7 +78,7 @@ class GitHub:
             raise GitHubError("Target Repository не на GitHub")
         return self.slug
 
-    def _api(self, *args: str, stdin: str | None = None) -> dict:
+    def _api(self, *args: str, stdin: str | None = None) -> Any:
         try:
             result = subprocess.run(
                 ["gh", "api", *args],

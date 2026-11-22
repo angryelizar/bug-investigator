@@ -49,7 +49,9 @@ class FakeStages:
         baseline: Baseline = GREEN,
         open_issues: list[RelatedIssue] | None = None,
         related_issue: int | None = None,
+        recent_issues: list[RelatedIssue] | None = None,
     ):
+        self.recent_issues = list(recent_issues or [])
         self.related_issue = related_issue
         self.comments: list[tuple[int, str]] = []
         self.baseline_result = baseline
@@ -74,6 +76,10 @@ class FakeStages:
         self.calls.append("search_issues")
         self.searched_for.append(terms)
         return self.open_issues
+
+    def recent_open_issues(self, limit):
+        self.calls.append("recent_open_issues")
+        return self.recent_issues[:limit]
 
     def analyst(self, state):
         self.calls.append("analyst")
@@ -233,7 +239,7 @@ def test_baseline_that_cannot_run_gives_up_before_any_model_stage():
 
 
 def test_red_baseline_searches_open_issues_by_failed_tests_and_exceptions():
-    stages = FakeStages(baseline=RED, open_issues=[issue(n) for n in range(1, 8)])
+    stages = FakeStages(baseline=RED, open_issues=[issue(n) for n in range(1, 13)])
 
     build_graph(stages).invoke(BUG)
 
@@ -241,7 +247,7 @@ def test_red_baseline_searches_open_issues_by_failed_tests_and_exceptions():
     assert "bookingRightAfterConfirmedOneIsAllowed" in terms
     assert "ResourceException" in terms
     assert stages.analyst_saw is not None
-    assert [i["number"] for i in stages.analyst_saw["related_issues"]] == [1, 2, 3, 4, 5]
+    assert [i["number"] for i in stages.analyst_saw["related_issues"]] == list(range(1, 11))
 
 
 def test_green_baseline_does_not_search_issues():
@@ -346,3 +352,41 @@ def test_blocked_verdict_on_a_green_baseline_is_not_trusted():
 
     assert final["outcome"] == "gave_up"
     assert stages.comments == []
+
+
+def test_issues_written_in_business_terms_reach_analyst_as_latest_open_ones():
+    # Nobody names `bookingRightAfterConfirmedOneIsAllowed` in an issue; Analyst
+    # matches "Нельзя забронировать слот сразу после чужой брони" by meaning.
+    stages = FakeStages(
+        baseline=RED,
+        open_issues=[],
+        recent_issues=[issue(6), issue(1, "Нельзя забронировать слот сразу после чужой брони")],
+    )
+
+    build_graph(stages).invoke(BUG)
+
+    assert stages.analyst_saw is not None
+    assert [i["number"] for i in stages.analyst_saw["related_issues"]] == [6, 1]
+
+
+def test_issues_found_by_name_come_first_and_latest_ones_fill_up_without_duplicates():
+    stages = FakeStages(
+        baseline=RED,
+        open_issues=[issue(3)],
+        recent_issues=[issue(n) for n in range(20, 0, -1)],
+    )
+
+    build_graph(stages).invoke(BUG)
+
+    assert stages.analyst_saw is not None
+    numbers = [i["number"] for i in stages.analyst_saw["related_issues"]]
+    assert numbers == [3, 20, 19, 18, 17, 16, 15, 14, 13, 12]
+
+
+def test_the_bug_reports_own_issue_is_not_offered_as_related():
+    stages = FakeStages(baseline=RED, open_issues=[issue(7)], recent_issues=[issue(7), issue(1)])
+
+    build_graph(stages).invoke(FROM_ISSUE)
+
+    assert stages.analyst_saw is not None
+    assert [i["number"] for i in stages.analyst_saw["related_issues"]] == [1]

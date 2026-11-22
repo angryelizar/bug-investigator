@@ -11,7 +11,7 @@ from bug_investigator import issue_comments
 from bug_investigator.stages import AgentGaveUp, GitHubError, Stages
 from bug_investigator.state import Baseline, InvestigationState, RelatedIssue
 
-MAX_RELATED_ISSUES = 5
+MAX_RELATED_ISSUES = 10
 # GitHub search allows at most five AND/OR/NOT operators in one query.
 MAX_SEARCH_TERMS = 6
 
@@ -31,7 +31,8 @@ def build_graph(stages: Stages, *, max_attempts: int = 3) -> CompiledStateGraph:
         if result["exit_code"] != 0:
             # Found by the graph, not the model, so that Analyst can name the issue
             # behind a "blocked" Verdict without spending tool calls on GitHub.
-            update["related_issues"] = _related_issues(stages, result)
+            own = state["bug_report"].get("issue_number")
+            update["related_issues"] = _related_issues(stages, result, exclude=own)
         return update
 
     def analyst(state: InvestigationState) -> dict:
@@ -136,14 +137,27 @@ def _after_analysis(state: InvestigationState) -> str:
     return _finished_or("planner")(state)
 
 
-def _related_issues(stages: Stages, baseline: Baseline) -> list[RelatedIssue]:
-    terms = _search_terms(baseline)
-    if not terms:
-        return []
-    try:
-        return stages.search_issues(terms)[:MAX_RELATED_ISSUES]
-    except GitHubError:
-        return []
+def _related_issues(
+    stages: Stages, baseline: Baseline, *, exclude: int | None
+) -> list[RelatedIssue]:
+    """Issues found by the failed tests' names first, then the latest open ones: issues
+    are written in business terms and rarely name a test, so Analyst matches by meaning.
+    """
+    found: list[RelatedIssue] = []
+    if terms := _search_terms(baseline):
+        try:
+            found = [i for i in stages.search_issues(terms) if i["number"] != exclude]
+            found = found[:MAX_RELATED_ISSUES]
+        except GitHubError:
+            pass
+    if len(found) < MAX_RELATED_ISSUES:
+        try:
+            latest = stages.recent_open_issues(MAX_RELATED_ISSUES + len(found) + 1)
+        except GitHubError:
+            latest = []
+        numbers = {i["number"] for i in found} | {exclude}
+        found += [i for i in latest if i["number"] not in numbers]
+    return found[:MAX_RELATED_ISSUES]
 
 
 def _search_terms(baseline: Baseline) -> list[str]:
