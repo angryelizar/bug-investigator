@@ -9,11 +9,21 @@ from typing import Protocol
 
 from pydantic import BaseModel, Field
 
-from bug_investigator.state import BuildResult, InvestigationState, Verdict
+from bug_investigator.state import (
+    Baseline,
+    BuildResult,
+    InvestigationState,
+    RelatedIssue,
+    Verdict,
+)
 
 
 class AgentGaveUp(Exception):
     """A stage cannot produce a result (tool-call limit hit, retries exhausted...)."""
+
+
+class GitHubError(Exception):
+    """A GitHub call failed; the Investigation goes on without its result."""
 
 
 @dataclass(frozen=True)
@@ -25,6 +35,11 @@ class Workspace:
 class Analysis(BaseModel):
     verdict: Verdict = Field(description="Verdict по Bug Report")
     summary: str = Field(description="Где проблемное место и почему; или чего не хватает")
+    # Required but nullable: strict JSON-schema modes reject optional fields.
+    related_issue: int | None = Field(
+        description="Для blocked: номер открытого issue из списка, описывающего причину "
+        "падения Baseline; иначе null"
+    )
 
 
 class Fix(BaseModel):
@@ -39,6 +54,10 @@ class Critique(BaseModel):
 
 class Stages(Protocol):
     def prepare(self, state: InvestigationState) -> Workspace: ...
+    def baseline(self, state: InvestigationState) -> Baseline: ...
+    def search_issues(self, terms: list[str]) -> list[RelatedIssue]: ...
+    def recent_open_issues(self, limit: int) -> list[RelatedIssue]: ...
+    def comment_on_issue(self, number: int, body: str) -> None: ...
     def analyst(self, state: InvestigationState) -> Analysis: ...
     def planner(self, state: InvestigationState) -> str: ...
     def coder(self, state: InvestigationState) -> Fix: ...

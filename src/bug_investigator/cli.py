@@ -20,11 +20,13 @@ from bug_investigator.state import BugReport, InvestigationState
 
 _STATUS = {
     "prepare": "Подготовка: рабочая копия {workdir}, ветка {branch}",
+    "baseline": "Baseline: {baseline}",
     "analyst": "Analyst: Verdict {verdict}",
     "planner": "Planner: Plan готов (попытка {attempts})",
     "coder": "Coder: Fix готов",
     "executor": "Executor: сборка с тестами — код {build_exit}",
     "critic": "Critic: {critic}",
+    "issue_comment": "Комментарий в issue: {comment}",
 }
 
 
@@ -105,16 +107,36 @@ def _status(node: str, state: dict) -> str:
         attempts=state.get("attempts"),
         build_exit=build.get("exit_code"),
         critic=critic,
+        baseline=_baseline(state),
+        comment=_comment(state),
     )
     if state.get("outcome") == "gave_up":
         line = f"{node}: агент сдался"
     return line
 
 
+def _comment(state: dict) -> str:
+    if "issue_number" not in state.get("bug_report", {}):
+        return "нет — Bug Report не из issue"
+    failed = f"Комментарий в issue #{state['bug_report']['issue_number']} не оставлен"
+    return "не оставлен" if failed in state.get("outcome_reason", "") else "оставлен"
+
+
+def _baseline(state: dict) -> str:
+    baseline = state.get("baseline") or {}
+    if baseline.get("exit_code") == 0:
+        return "зелёный"
+    failed = ", ".join(baseline.get("failed_tests") or []) or "имена тестов не найдены"
+    issues = len(state.get("related_issues") or [])
+    return f"красный ({failed}); открытых issue для Analyst: {issues}"
+
+
 def _print_result(state: dict) -> None:
     print(f"\nИтог: {state.get('outcome')}")
     if state.get("outcome_reason"):
         print(state["outcome_reason"])
+    if state.get("related_issue"):
+        print(f"Связанное issue: #{state['related_issue']}")
     if state.get("analysis_summary"):
         print(f"\nAnalysis:\n{state['analysis_summary']}")
     if state.get("plan"):
