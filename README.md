@@ -30,6 +30,20 @@ uv run chainlit run src/bug_investigator/ui.py    # http://localhost:8000
 
 **Провайдер.** Берите OpenAI (`BI_PROVIDER=openai`) или платный тариф Groq. На бесплатных тарифах Investigation упирается в лимит токенов в минуту и не доходит до конца. Полный прогон трёх багов на OpenAI стоил около $1.
 
-**Target Repository** должен иметь в корне `Dockerfile`, который компилирует проект и прогоняет тесты (для Maven — `mvn package` без `-DskipTests`). Тесты не должны требовать внешних сервисов и должны лежать под `src/test/**`. Пример — [`resourceBooking`](https://github.com/angryelizar/resourceBooking).
+**Target Repository** должен иметь в корне `Dockerfile`, который компилирует проект и прогоняет тесты (для Maven — `mvn package` без `-DskipTests`). Тесты не должны требовать внешних сервисов и должны лежать под `src/test/**`.
 
 Остальные настройки (лимиты, таймауты, LangSmith) — в [`.env.example`](.env.example).
+
+## Демо-стенд
+
+[`angryelizar/resourceBooking`](https://github.com/angryelizar/resourceBooking) — Spring Boot сервис бронирования с тестами на H2 и готовым Dockerfile. На нём агента удобно гонять и отлаживать. Сделайте форк и укажите его в `BI_TARGET_REPO`.
+
+- `main` чистый и зелёный, на нём тег `clean`.
+- Ветки `bugset-1` … `bugset-4` — наборы по три бага: явный (валит существующий тест), тихий, на который можно написать тест, и тихий, на который тест не написать.
+- Загрузить набор: влить ветку в `main` и запушить. Сбросить стенд: `git reset --hard clean && git push --force origin main`, открытые Fix PR закрыть.
+
+**Откуда брать задачи:**
+- Готовые issue для `bugset-1` и `bugset-2` уже есть в [issues стенда](https://github.com/angryelizar/resourceBooking/issues) — передайте агенту ссылку на любое из них.
+- Черновики этих issue — в [`.scratch/bug-investigator/scenario-issues.md`](.scratch/bug-investigator/scenario-issues.md). Там же шпаргалка, где спрятан каждый баг всех четырёх наборов. Не показывайте её агенту и тому, кто пишет issue.
+- Свои issue пишите как пользователь: что сделал, что ожидал, что получил. Без имён классов и методов, иначе это проверка не поиска, а чтения.
+- Явный баг можно подать без issue: вставьте в чат вывод упавшего теста из `docker build`.
