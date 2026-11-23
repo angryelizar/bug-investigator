@@ -4,17 +4,13 @@
 
 ## Флоу
 
-```
-Подготовка → Baseline → Analyst ─┬ Подтверждено → Planner → [Plan Approval] → Coder → Executor → Critic ─┬ прошло → [Fix Approval] → Fix PR
-                                 └ Не баг / Недостаточно данных / Заблокировано → комментарий в issue   ↑   └ не прошло (до 3 попыток)
-                                                                                                         └───────────┘
-```
+![Граф Investigation](docs/graph.png)
 
 - Порядок этапов жёсткий, маршрутизация — в коде, а не в модели ([ADR 0001](docs/adr/0001-fixed-agent-pipeline.md)).
 - Fix проверяется через `docker build` Target Repository: сборка с Fix должна пройти, а тесты из Fix на исходном коде должны упасть. Тогда Fix — Reproduced, иначе — Unreproduced ([ADR 0002](docs/adr/0002-verification-via-docker-build.md)).
-- `[...]` — паузы: «Одобрить», «Отклонить», «Доработать» с комментарием.
+- Оранжевые шестиугольники — паузы: «Одобрить», «Отклонить», «Доработать» с комментарием.
 
-Подробнее: схема — [`Bug Investigator.drawio.xml`](Bug%20Investigator.drawio.xml), термины — [`GLOSSARY.md`](GLOSSARY.md), материалы к защите — [`docs/defense.md`](docs/defense.md).
+Подробнее: исходник схемы — [`Bug Investigator.drawio.xml`](Bug%20Investigator.drawio.xml), термины — [`GLOSSARY.md`](GLOSSARY.md), материалы к защите — [`docs/defense.md`](docs/defense.md).
 
 ## Запуск
 
