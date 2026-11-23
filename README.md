@@ -18,7 +18,7 @@
 
 ```bash
 uv sync
-cp .env.example .env    # BI_TARGET_REPO, BI_PROVIDER, BI_MODEL, ключи
+cp .env.example .env    # уже настроен на демо-стенд: впишите OPENAI_API_KEY и LANGSMITH_API_KEY
 uv run chainlit run src/bug_investigator/ui.py    # http://localhost:8000
 ```
 
