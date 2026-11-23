@@ -28,7 +28,13 @@ from bug_investigator.stages import (
     PublishError,
     Workspace,
 )
-from bug_investigator.state import Baseline, BuildResult, InvestigationState, RelatedIssue
+from bug_investigator.state import (
+    Baseline,
+    BuildResult,
+    InvestigationState,
+    RelatedIssue,
+    ReproductionBuild,
+)
 from bug_investigator.tools import build_tools
 
 T = TypeVar("T", bound=BaseModel)
@@ -145,6 +151,18 @@ class ModelStages:
 
     def build(self, state: InvestigationState) -> BuildResult:
         return executor.docker_build(_workdir(state), self.settings.build_timeout_s)
+
+    def build_reproduction(self, state: InvestigationState) -> ReproductionBuild | None:
+        workdir = _workdir(state)
+        try:
+            with workspace.reproduction_copy(workdir) as copy:
+                if copy is None:
+                    return None
+                return executor.reproduction_build(copy, self.settings.build_timeout_s)
+        except (RuntimeError, OSError, AgentGaveUp):
+            # Git could not make the copy or Docker broke down: build B still verified
+            # the Fix, so it goes on as Unreproduced rather than ending the Investigation.
+            return None
 
     def critic(self, state: InvestigationState) -> Critique:
         task = prompts.critic_task(state, max_diff_chars=_MAX_DIFF_CHARS_FOR_CRITIC)

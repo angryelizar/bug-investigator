@@ -6,12 +6,16 @@ import hashlib
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 from bug_investigator.stages import AgentGaveUp, Workspace
 from bug_investigator.state import BugReport
 
 _PREFIX = "bug-investigator-"
+# Multi-module projects keep tests in `<module>/src/test`; `**/` also matches the root.
+_TESTS = ":(glob)**/src/test/**"
 _AUTHOR = "Bug Investigator"
 _AUTHOR_EMAIL = "bug-investigator@users.noreply.github.com"
 
@@ -38,6 +42,43 @@ def reset(workdir: str) -> None:
     """Back to the cloned commit, so each Coder attempt starts from clean code."""
     _git(workdir, "reset", "--hard", "--quiet", "HEAD")
     _git(workdir, "clean", "-fd", "--quiet")
+
+
+@contextmanager
+def reproduction_copy(workdir: str) -> Iterator[str | None]:
+    """A temporary copy of the original code plus the new and changed files under
+    `src/test/**` from the Fix, without the test files it deletes (build A); None if
+    the Fix adds or changes no tests.
+    The working copy with the Fix is not touched; the copy is removed on exit.
+    """
+    _git(workdir, "add", "--all")
+    # Without rename detection a moved test is a deletion plus an addition, so the old
+    # path does not stay in the copy next to the new one.
+    listed = _git(
+        workdir, "diff", "--cached", "--name-status", "--no-renames", "-z", "HEAD", "--", _TESTS
+    ).split("\0")
+    changes = list(zip(listed[0::2], listed[1::2], strict=False))
+    written = [path for status, path in changes if status in ("A", "M")]
+    deleted = [path for status, path in changes if status == "D"]
+    if not written:
+        yield None
+        return
+    copy = tempfile.mkdtemp(prefix=f"{_PREFIX}reproduction-")
+    try:
+        _git(workdir, "worktree", "add", "--quiet", "--detach", copy, "HEAD")
+        for path in written:
+            target = Path(copy, path)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(Path(workdir, path), target)
+        for path in deleted:
+            Path(copy, path).unlink(missing_ok=True)
+        yield copy
+    finally:
+        shutil.rmtree(copy, ignore_errors=True)
+        try:
+            _git(workdir, "worktree", "prune")
+        except (RuntimeError, OSError):
+            pass  # a stale worktree entry in a working copy that is removed anyway
 
 
 def commit_and_push(workdir: str, branch: str, message: str) -> str:

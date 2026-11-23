@@ -18,6 +18,7 @@ from bug_investigator.state import (
     BuildResult,
     InvestigationState,
     RelatedIssue,
+    ReproductionBuild,
     Verdict,
 )
 
@@ -83,7 +84,9 @@ class FakeStages:
         open_issues: list[RelatedIssue] | None = None,
         related_issue: int | None = None,
         recent_issues: list[RelatedIssue] | None = None,
+        reproduction: ReproductionBuild | None = None,
     ):
+        self.reproduction = reproduction
         self.recent_issues = list(recent_issues or [])
         self.related_issue = related_issue
         self.comments: list[tuple[int, str]] = []
@@ -143,6 +146,10 @@ class FakeStages:
         self.calls.append("build")
         return self.builds.pop(0) if len(self.builds) > 1 else self.builds[0]
 
+    def build_reproduction(self, state):
+        self.calls.append("build_reproduction")
+        return self.reproduction
+
     def critic(self, state):
         self.calls.append("critic")
         return self.critiques.pop(0) if len(self.critiques) > 1 else self.critiques[0]
@@ -169,6 +176,7 @@ def test_confirmed_bug_pauses_on_plan_and_fix_then_opens_a_fix_pr():
         "planner",
         "coder",
         "build",
+        "build_reproduction",
         "critic",
         "publish",
         "cleanup",
@@ -222,6 +230,137 @@ def test_failed_build_sends_fix_back_even_if_critic_approves():
     assert stages.calls.count("planner") == 2
     assert "Failures: 1" in (stages.planner_saw_notes[1] or "")
     assert final["outcome"] == "pr_created"
+
+
+RED_REPRODUCTION = ReproductionBuild(
+    exit_code=1,
+    log_tail="Tests run: 1, Failures: 1",
+    failed_tests=["BookingServiceTest.cancelWithoutPayment"],
+)
+
+
+def test_fix_whose_tests_fail_on_the_original_code_is_reproduced():
+    stages = FakeStages(reproduction=RED_REPRODUCTION)
+
+    final, _ = run(stages, BUG)
+
+    assert final["reproduced"] is True
+    assert final["reproduction_build"] == RED_REPRODUCTION
+
+
+def test_reproduction_that_failed_before_any_test_ran_proves_nothing():
+    # E.g. the test uses API that only the Fix adds: build A fails on compilation.
+    stages = FakeStages(
+        reproduction=ReproductionBuild(exit_code=1, log_tail="COMPILATION ERROR", failed_tests=[])
+    )
+
+    final, _ = run(stages, BUG)
+
+    assert final["reproduced"] is False
+
+
+def test_tests_already_red_in_the_baseline_do_not_reproduce_the_bug():
+    stages = FakeStages(
+        baseline=RED,
+        reproduction=ReproductionBuild(
+            exit_code=1, log_tail="BUILD FAILURE", failed_tests=RED["failed_tests"]
+        ),
+    )
+
+    final, _ = run(stages, BUG)
+
+    assert final["reproduced"] is False
+
+
+def test_new_failure_on_top_of_a_red_baseline_reproduces_the_bug():
+    stages = FakeStages(
+        baseline=RED,
+        reproduction=ReproductionBuild(
+            exit_code=1,
+            log_tail="BUILD FAILURE",
+            failed_tests=[*RED["failed_tests"], "BookingServiceTest.cancelWithoutPayment"],
+        ),
+    )
+
+    final, _ = run(stages, BUG)
+
+    assert final["reproduced"] is True
+
+
+def test_fix_without_tests_is_unreproduced():
+    stages = FakeStages(reproduction=None)
+
+    final, _ = run(stages, BUG)
+
+    assert final["reproduced"] is False
+    assert final["reproduction_build"] is None
+
+
+def test_fix_whose_tests_pass_on_the_original_code_is_unreproduced():
+    stages = FakeStages(
+        reproduction=ReproductionBuild(exit_code=0, log_tail="BUILD SUCCESS", failed_tests=[])
+    )
+
+    final, _ = run(stages, BUG)
+
+    assert final["reproduced"] is False
+
+
+def test_reproduction_that_timed_out_on_the_original_code_proves_nothing():
+    stages = FakeStages(
+        reproduction=ReproductionBuild(
+            exit_code=124, log_tail="таймаут", failed_tests=["BookingServiceTest.slow"]
+        )
+    )
+
+    final, _ = run(stages, BUG)
+
+    assert final["reproduced"] is False
+
+
+def test_failed_fix_build_skips_the_reproduction_build():
+    stages = FakeStages(
+        builds=[
+            BuildResult(exit_code=1, log_tail="Tests run: 5, Failures: 1"),
+            BuildResult(exit_code=0, log_tail="BUILD SUCCESS"),
+        ],
+        reproduction=RED_REPRODUCTION,
+    )
+
+    final, _ = run(stages, BUG)
+
+    assert stages.calls.count("build") == 2
+    assert stages.calls.count("build_reproduction") == 1
+    assert final["reproduced"] is True
+
+
+def test_rejected_reproduced_fix_does_not_keep_its_reproduction_for_the_next_one():
+    class ReproducedOnlyFirst(FakeStages):
+        def build_reproduction(self, state):
+            super().build_reproduction(state)
+            first = self.calls.count("build_reproduction") == 1
+            return RED_REPRODUCTION if first else None
+
+    stages = ReproducedOnlyFirst(
+        critiques=[Critique(passed=False, notes="не то"), Critique(passed=True, notes="")]
+    )
+
+    final, _ = run(stages, BUG)
+
+    assert final["reproduced"] is False
+
+
+def test_critic_sees_whether_the_fix_is_reproduced():
+    seen: list[dict] = []
+
+    class Watching(FakeStages):
+        def critic(self, state):
+            seen.append(dict(state))
+            return super().critic(state)
+
+    run(Watching(reproduction=RED_REPRODUCTION), BUG)
+
+    assert seen[0]["reproduced"] is True
 
 
 def test_unconfirmed_verdict_ends_investigation_without_planning():
@@ -480,6 +619,20 @@ def test_fix_pause_shows_the_diff_and_explanation():
     assert pause.value["diff"] == "--- a\n+++ b\n"
     assert pause.value["explanation"] == "добавил проверку"
     assert pause.value["reproduced"] is False
+    assert pause.value["reproduction_build"] is None
+
+
+def test_fix_pause_shows_the_reproduction_on_the_original_code():
+    stages = FakeStages(reproduction=RED_REPRODUCTION)
+    graph = build_graph(stages)
+    config: RunnableConfig = {"configurable": {"thread_id": "fix-pause-reproduced"}}
+    graph.invoke(BUG, config)
+    graph.invoke(Command(resume=APPROVE), config)
+
+    [pause] = graph.get_state(config).interrupts
+
+    assert pause.value["reproduced"] is True
+    assert pause.value["reproduction_build"] == RED_REPRODUCTION
 
 
 def test_fix_pr_for_an_issue_says_fixes_and_is_honest_about_reproduction():
@@ -494,6 +647,18 @@ def test_fix_pr_for_an_issue_says_fixes_and_is_honest_about_reproduction():
     assert "добавил проверку" in body
     assert "Unreproduced Fix" in body
     assert "агент" in body.lower()
+
+
+def test_fix_pr_of_a_reproduced_fix_gives_both_builds():
+    stages = FakeStages(reproduction=RED_REPRODUCTION)
+
+    run(stages, BUG)
+
+    [(_, body)] = stages.published
+    assert "Reproduced Fix" in body
+    assert "Unreproduced" not in body
+    assert "без Fix: код возврата 1" in body
+    assert "с Fix: код возврата 0" in body
 
 
 def test_fix_pr_for_a_chat_bug_report_quotes_it():

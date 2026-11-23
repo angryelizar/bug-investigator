@@ -149,6 +149,8 @@ def _print_pause(pause: dict) -> None:
         fix_kind = "Reproduced Fix" if pause.get("reproduced") else "Unreproduced Fix"
         print(f"\n== Fix Approval ==\n{pause['explanation']}\n")
         print(f"{fix_kind}; сборка с тестами — код {build.get('exit_code')}")
+        if reproduction := pause.get("reproduction_build"):
+            print(f"Только тесты из Fix на исходном коде — код {reproduction['exit_code']}")
         if pause.get("critic_notes"):
             print(f"Critic: {pause['critic_notes']}")
         print(f"\n{pause['diff']}")

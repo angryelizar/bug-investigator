@@ -9,8 +9,15 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.types import interrupt
 
 from bug_investigator import fix_pr, issue_comments
+from bug_investigator.executor import TIMEOUT_EXIT_CODE
 from bug_investigator.stages import AgentGaveUp, GitHubError, PublishError, Stages
-from bug_investigator.state import Approval, Baseline, InvestigationState, RelatedIssue
+from bug_investigator.state import (
+    Approval,
+    Baseline,
+    InvestigationState,
+    RelatedIssue,
+    ReproductionBuild,
+)
 
 MAX_RELATED_ISSUES = 10
 # GitHub search allows at most five AND/OR/NOT operators in one query.
@@ -112,7 +119,16 @@ def build_graph(stages: Stages, *, max_attempts: int = 3) -> CompiledStateGraph:
         return {"fix_diff": fix.diff, "fix_explanation": fix.explanation}
 
     def executor(state: InvestigationState) -> dict:
-        return {"build_result": stages.build(state)}
+        build = stages.build(state)
+        # A failed Fix goes to Critic anyway: whether its tests reproduce the bug no
+        # longer matters, so build A is not worth the time.
+        reproduction = stages.build_reproduction(state) if build["exit_code"] == 0 else None
+        return {
+            "build_result": build,
+            "reproduction_build": reproduction,
+            "reproduced": _reproduces(reproduction, state.get("baseline"))
+            and build["exit_code"] == 0,
+        }
 
     def critic(state: InvestigationState) -> dict:
         critique = stages.critic(state)
@@ -143,6 +159,7 @@ def build_graph(stages: Stages, *, max_attempts: int = 3) -> CompiledStateGraph:
                 "diff": state.get("fix_diff", ""),
                 "explanation": state.get("fix_explanation", ""),
                 "reproduced": state.get("reproduced", False),
+                "reproduction_build": state.get("reproduction_build"),
                 "build_result": state.get("build_result"),
                 "critic_notes": state.get("critic_notes", ""),
             }
@@ -232,6 +249,16 @@ def _ask(pause: dict) -> Approval:
     if decision not in ("approve", "reject", "revise"):
         raise ValueError(f"Approval: ожидался approve/reject/revise, получено {answer!r}")
     return Approval(decision=decision, comment=str(answer.get("comment") or "").strip())
+
+
+def _reproduces(reproduction: ReproductionBuild | None, baseline: Baseline | None) -> bool:
+    """Build A failed on a test that passes in the Baseline: the Fix's tests catch the
+    bug in the original code. A timeout, or a build that failed before any test ran
+    (a test using API that only the Fix adds), says nothing about the bug."""
+    if reproduction is None or reproduction["exit_code"] in (0, TIMEOUT_EXIT_CODE):
+        return False
+    already_red = set(baseline["failed_tests"]) if baseline else set()
+    return bool(set(reproduction["failed_tests"]) - already_red)
 
 
 def _rejected(approval: Approval, what: str) -> dict:
