@@ -32,7 +32,7 @@ uv run chainlit run src/bug_investigator/ui.py    # http://localhost:8000
 
 ## Демо-стенд
 
-[`angryelizar/resourceBooking`](https://github.com/angryelizar/resourceBooking) — Spring Boot сервис бронирования с тестами на H2 и готовым Dockerfile. На нём агента удобно гонять и отлаживать. Сделайте форк и укажите его в `BI_TARGET_REPO`.
+[`angryelizar/resourceBooking`](https://github.com/angryelizar/resourceBooking) — Spring Boot сервис бронирования с тестами на H2 и готовым Dockerfile. На нём агента удобно гонять и отлаживать; `.env.example` уже указывает на него. Агенту нужно право push, чтобы открыть Fix PR: если доступа нет, напишите [angryelizar](https://github.com/angryelizar), и он добавит вас в коллабораторы.
 
 - `main` чистый и зелёный, на нём тег `clean`.
 - Ветки `bugset-1` … `bugset-4` — наборы по три бага: явный (валит существующий тест), тихий, на который можно написать тест, и тихий, на который тест не написать.
