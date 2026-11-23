@@ -1,137 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="app.diagrams.net">
-  <diagram name="Page-1" id="P6XokGultlVFFxcpF19Z">
-    <mxGraphModel dx="1586" dy="1041" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+  <diagram name="Граф Investigation" id="bug-investigator-graph">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1450" math="0" shadow="0">
       <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="LCIOYYnsJW6HOwYe308k-26" edge="1" parent="1" source="LCIOYYnsJW6HOwYe308k-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;labelPadding=0 4;">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="535" y="230" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-2" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" value="Github Issue trigger" vertex="1">
-          <mxGeometry height="40" width="120" x="475" y="140" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;State:&lt;/font&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Agent:&lt;/b&gt;&lt;/div&gt;&lt;div&gt;repositoryLink&lt;/div&gt;&lt;div&gt;issueLink:&lt;/div&gt;&lt;div&gt;isProjectMounted:&lt;/div&gt;&lt;div&gt;sqlcreds:&lt;/div&gt;&lt;div&gt;IsDbAlive:&lt;/div&gt;&lt;div&gt;problemVerified:&lt;/div&gt;&lt;div&gt;plans[]:&lt;/div&gt;&lt;div&gt;isPlanApproved:&lt;/div&gt;&lt;div&gt;implementationNotes:&lt;/div&gt;&lt;div&gt;isProblemSolved&lt;/div&gt;&lt;div&gt;prLink&lt;/div&gt;" vertex="1">
-          <mxGeometry height="320" width="130" x="50" y="120" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-22" edge="1" parent="1" source="LCIOYYnsJW6HOwYe308k-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;" target="LCIOYYnsJW6HOwYe308k-7">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-34" edge="1" parent="1" source="LCIOYYnsJW6HOwYe308k-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;" target="LCIOYYnsJW6HOwYe308k-28">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-4" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Orchestrator" vertex="1">
-          <mxGeometry height="110" width="110" x="470" y="320" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-7" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Analyst" vertex="1">
-          <mxGeometry height="130" width="130" x="330" y="465" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-10" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" value="setup_project" vertex="1">
-          <mxGeometry height="50" width="120" x="290" y="1070" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-12" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" value="FileManagementToolkit (from lanchain)&lt;div&gt;(copy,delete,search, list, move, read, write from toolkit&lt;/div&gt;" vertex="1">
-          <mxGeometry height="90" width="190" x="430" y="1050" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-13" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" value="custom_git_tools" vertex="1">
-          <mxGeometry height="50" width="120" x="640" y="1070" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-14" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" value="custom_docker_tools/&lt;div&gt;(doud или docker in docker)&lt;/div&gt;&lt;div&gt;или .net tools&lt;/div&gt;" vertex="1">
-          <mxGeometry height="90" width="160" x="780" y="1070" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-16" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Coder" vertex="1">
-          <mxGeometry height="130" width="130" x="910" y="490" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-17" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Critic/Reviewer" vertex="1">
-          <mxGeometry height="130" width="130" x="1145" y="490" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Orchestrator&lt;/b&gt;&lt;div&gt;Получает голую задачу с гитлаба и отправляет ее аналитику на формализацию.&amp;nbsp;&lt;/div&gt;&lt;div&gt;Если баг реальный - отдает задачу планнеру, если нет - отписывает под задачей что делать он ниче не будет.&amp;nbsp;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="60" width="210" x="700" y="330" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-21" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" value="github tools or mcp" vertex="1">
-          <mxGeometry height="50" width="160" x="960" y="1070" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-24" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Analyst (&lt;/b&gt;ReAct&lt;b&gt;)&lt;/b&gt;&lt;div&gt;Проверяет задачу - точно ли она описана. Смотрит проект и ищет есть ли то о чем говорят в задаче в коде. Если есть - присылает инфу об этом оркестратору или же рапортует что задача ни о чем.&amp;nbsp;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="130" width="210" x="80" y="465" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-27" edge="1" parent="1" source="LCIOYYnsJW6HOwYe308k-7" style="endArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;labelPadding=0 4;entryX=0.5;entryY=1;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;exitX=1.017;exitY=0.425;exitDx=0;exitDy=0;exitPerimeter=0;" target="LCIOYYnsJW6HOwYe308k-4" value="">
-          <mxGeometry height="50" relative="1" width="50" x="-0.0713" as="geometry">
-            <mxPoint x="450" y="520" as="sourcePoint" />
-            <mxPoint x="500" y="470" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-28" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Planner" vertex="1">
-          <mxGeometry height="130" width="130" x="630" y="490" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-30" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d80073;fontColor=#ffffff;strokeColor=#A50040;" value="Setup project" vertex="1">
-          <mxGeometry height="40" width="120" x="475" y="230" as="geometry" />
-        </mxCell>
-        <mxCell id="LCIOYYnsJW6HOwYe308k-31" edge="1" parent="1" source="LCIOYYnsJW6HOwYe308k-30" style="endArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;labelPadding=0 4;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.64;entryY=-0.019;entryDx=0;entryDy=0;entryPerimeter=0;" target="LCIOYYnsJW6HOwYe308k-4" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="540" y="410" as="sourcePoint" />
-            <mxPoint x="590" y="360" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Tools" vertex="1">
-          <mxGeometry height="30" width="60" x="710" y="980" as="geometry" />
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-2" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Executor" vertex="1">
-          <mxGeometry height="130" width="130" x="990" y="710" as="geometry" />
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-3" edge="1" parent="1" source="LCIOYYnsJW6HOwYe308k-28" style="endArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;labelPadding=0 4;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="LCIOYYnsJW6HOwYe308k-16" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="810" y="560" as="sourcePoint" />
-            <mxPoint x="860" y="510" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-4" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;labelPadding=0 4;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="AB_o4CmZP1BWmNB1xeDn-2" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="970" y="620" as="sourcePoint" />
-            <mxPoint x="1020" y="570" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-5" edge="1" parent="1" source="AB_o4CmZP1BWmNB1xeDn-2" style="endArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;labelPadding=0 4;entryX=0.438;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryPerimeter=0;" target="LCIOYYnsJW6HOwYe308k-17" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="1220" y="660" as="sourcePoint" />
-            <mxPoint x="1290" y="750" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-6" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Critic/Reviewer&lt;b&gt; (Reflexion)&lt;/b&gt;&lt;br&gt;&lt;div&gt;Проверяет результат executor-а - если результаты executor-а позитивные - ставит true в state и пушит результат в git + готовит сообщение.&amp;nbsp;&lt;/div&gt;&lt;div&gt;Если что-то не так - просит новый план в связи с новыми обстоятельствами, записывает заметки в стейт и цикл от планнера до ревьювера гоняется снова.&amp;nbsp;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="165" width="210" x="1320" y="650" as="geometry" />
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-7" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;labelPadding=0 4;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" value="">
-          <mxGeometry height="50" relative="1" width="50" x="-0.7686" as="geometry">
-            <Array as="points">
-              <mxPoint x="1210" y="460" />
-              <mxPoint x="940" y="460" />
-              <mxPoint x="700" y="460" />
-            </Array>
-            <mxPoint x="1210" y="490" as="sourcePoint" />
-            <mxPoint x="695" y="490" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-8" parent="1" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" value="Pull-request (Human-in-the-Loop)" vertex="1">
-          <mxGeometry height="60" width="120" x="1340" y="520" as="geometry" />
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-9" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;defaultLabelBackgroundColor=page;labelPadding=0 4;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="AB_o4CmZP1BWmNB1xeDn-8" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="1280" y="550" as="sourcePoint" />
-            <mxPoint x="1330" y="500" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-10" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Executor&lt;/b&gt;&lt;br&gt;&lt;div&gt;Проверяет результат работы кодера - прогоняет тест или просто билдит приложение и проверяет что оно вообще запускается.&amp;nbsp;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="142" width="150" x="760" y="740" as="geometry" />
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Planner (Plan &amp;amp; Execute)&lt;/b&gt;&lt;br&gt;&lt;div&gt;На основании информации от оркестратора пишет план реализации фикса который включает в себя&lt;/div&gt;&lt;div&gt;- написание теста или псевдотеста для фиксации текущего бага&amp;nbsp;&lt;/div&gt;&lt;div&gt;- написание самого простого способа реализации&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;без лишней оптимизации и избыточной логики.&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;- улучшает читаемость кода и теста сохраняя прохождение проверок&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;В общем цикл&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;Цикл Red — Green — Refactor (TDD)&lt;/span&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="242" width="240" x="420" y="640" as="geometry" />
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Coder&lt;/b&gt;&lt;br&gt;&lt;div&gt;Ну тупо кодер че - получает план от планнера и потом передает свое говно executor.&amp;nbsp;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="142" width="150" x="960" y="298" as="geometry" />
-        </mxCell>
-        <mxCell id="AB_o4CmZP1BWmNB1xeDn-13" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" value="SQLToolkit(langchain)" vertex="1">
-          <mxGeometry height="50" width="160" x="1140" y="1070" as="geometry" />
-        </mxCell>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Bug Investigator — граф Investigation (LangGraph)" style="text;html=1;fontSize=20;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="700" height="40" as="geometry"/></mxCell>
+        <mxCell id="start" value="Bug Report&lt;br&gt;текст в чате или issue" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="370" y="60" width="200" height="56" as="geometry"/></mxCell>
+        <mxCell id="prepare" value="&lt;b&gt;Подготовка&lt;/b&gt; (код)&lt;br&gt;git clone --depth 1, новая ветка" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="340" y="150" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="baseline" value="&lt;b&gt;Baseline&lt;/b&gt; (код)&lt;br&gt;docker build исходного кода;&lt;br&gt;красный → поиск связанных issue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="340" y="250" width="260" height="72" as="geometry"/></mxCell>
+        <mxCell id="analyst" value="&lt;b&gt;Analyst&lt;/b&gt; (ReAct)&lt;br&gt;Verdict + analysis_summary" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="340" y="360" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="nab" value="&lt;b&gt;Approval «Не баг»&lt;/b&gt;&lt;br&gt;пауза" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;size=0.08;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1"><mxGeometry x="40" y="360" width="220" height="64" as="geometry"/></mxCell>
+        <mxCell id="comment" value="&lt;b&gt;Комментарий в issue&lt;/b&gt; (код)&lt;br&gt;«Не баг» / «Недостаточно данных» /&lt;br&gt;«Заблокировано» + связанное issue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="20" y="500" width="260" height="80" as="geometry"/></mxCell>
+        <mxCell id="planner" value="&lt;b&gt;Planner&lt;/b&gt; (ReAct)&lt;br&gt;Plan: причина, Reproduction, изменение" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="340" y="500" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="plan_appr" value="&lt;b&gt;Plan Approval&lt;/b&gt;&lt;br&gt;пауза: попытка N из 3" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;size=0.08;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1"><mxGeometry x="340" y="600" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="coder" value="&lt;b&gt;Coder&lt;/b&gt; (ReAct)&lt;br&gt;Fix: правка кода + тест-Reproduction" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="340" y="700" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="executor" value="&lt;b&gt;Executor&lt;/b&gt; (код)&lt;br&gt;сборка B: весь Fix — должна пройти&lt;br&gt;сборка A: тесты Fix на исходном коде — должна упасть" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="340" y="800" width="260" height="80" as="geometry"/></mxCell>
+        <mxCell id="critic" value="&lt;b&gt;Critic&lt;/b&gt; (LLM, без инструментов)&lt;br&gt;Bug Report + Plan + diff + лог" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="340" y="920" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="fix_appr" value="&lt;b&gt;Fix Approval&lt;/b&gt;&lt;br&gt;пауза: diff, Reproduced / Unreproduced" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;size=0.08;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1"><mxGeometry x="340" y="1030" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="publish" value="&lt;b&gt;Публикация&lt;/b&gt; (код)&lt;br&gt;коммит, push, Fix PR «Fixes #N»" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="340" y="1130" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="cleanup" value="&lt;b&gt;Очистка&lt;/b&gt; (код)&lt;br&gt;удаление рабочей копии" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="340" y="1240" width="260" height="64" as="geometry"/></mxCell>
+        <mxCell id="end" value="Итог: PR создан / отклонено / агент сдался /&lt;br&gt;не баг / мало данных / заблокировано" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="320" y="1340" width="300" height="64" as="geometry"/></mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="start" target="prepare"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="prepare" target="baseline"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="baseline" target="analyst"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e4" value="Подтверждено" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="analyst" target="planner"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e5" value="Не баг" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="analyst" target="nab"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e6" value="Недостаточно данных /&lt;br&gt;Заблокировано" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.25;exitY=1;entryX=1;entryY=0.25;" edge="1" parent="1" source="analyst" target="comment"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="405" y="520"/></Array></mxGeometry></mxCell>
+        <mxCell id="e7" value="Одобрить" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="nab" target="comment"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e8" value="Доработать" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;entryX=0.2;entryY=0;dashed=1;" edge="1" parent="1" source="nab" target="analyst"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="150" y="340"/><mxPoint x="392" y="340"/></Array></mxGeometry></mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="planner" target="plan_appr"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e10" value="Одобрить" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="plan_appr" target="coder"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e11" value="Доработать" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=1;entryY=0.75;dashed=1;" edge="1" parent="1" source="plan_appr" target="planner"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="640" y="632"/><mxPoint x="640" y="548"/></Array></mxGeometry></mxCell>
+        <mxCell id="e12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="coder" target="executor"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="executor" target="critic"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e14" value="прошло" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="critic" target="fix_appr"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e15" value="не прошло: critic_notes&lt;br&gt;(не больше 3 попыток)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=1;entryY=0.25;strokeColor=#b85450;fontColor=#b85450;" edge="1" parent="1" source="critic" target="planner"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="720" y="952"/><mxPoint x="720" y="516"/></Array></mxGeometry></mxCell>
+        <mxCell id="e16" value="Одобрить" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="fix_appr" target="publish"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e17" value="Доработать" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.75;entryX=1;entryY=0.5;dashed=1;" edge="1" parent="1" source="fix_appr" target="planner"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="780" y="1078"/><mxPoint x="780" y="532"/></Array></mxGeometry></mxCell>
+        <mxCell id="e18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="publish" target="cleanup"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="e19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" edge="1" parent="1" source="comment" target="cleanup"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="150" y="1272"/></Array></mxGeometry></mxCell>
+        <mxCell id="e20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="cleanup" target="end"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="reject" value="«Отклонить» на любой паузе и «агент сдался»&lt;br&gt;(исчерпаны попытки или повторы) ведут сразу в Очистку." style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="840" y="1130" width="330" height="70" as="geometry"/></mxCell>
+        <mxCell id="legend" value="&lt;b&gt;Обозначения&lt;/b&gt;&lt;br&gt;&lt;br&gt;&amp;#9632; синий — код графа, без модели&lt;br&gt;&amp;#9632; зелёный — вызов модели&lt;br&gt;&amp;#11042; оранжевый — пауза Human-in-the-Loop (interrupt):&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;Одобрить / Отклонить / Доработать&lt;br&gt;пунктир — «Доработать» с комментарием человека&lt;br&gt;красная — петля самокритики (Reflexion)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="840" y="60" width="330" height="150" as="geometry"/></mxCell>
+        <mxCell id="tools" value="&lt;b&gt;Инструменты модели&lt;/b&gt;&lt;br&gt;&lt;br&gt;Analyst, Planner: grep, find_files,&lt;br&gt;&amp;nbsp;&amp;nbsp;list_directory, read_file&lt;br&gt;Coder: то же + write_file&lt;br&gt;Critic: без инструментов&lt;br&gt;&lt;br&gt;≤ 15 вызовов на заход (recursion_limit),&lt;br&gt;ответ инструмента ≤ 6000 символов&lt;br&gt;&lt;br&gt;&lt;b&gt;Вызывает только граф:&lt;/b&gt;&lt;br&gt;git, docker build, GitHub (gh)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="840" y="230" width="330" height="230" as="geometry"/></mxCell>
+        <mxCell id="state" value="&lt;b&gt;State&lt;/b&gt; (только итоги этапов, без секретов)&lt;br&gt;&lt;br&gt;bug_report, workdir, branch, baseline,&lt;br&gt;related_issues, verdict, analysis_summary,&lt;br&gt;plan, fix_diff, fix_explanation,&lt;br&gt;build_result, reproduction_build, reproduced,&lt;br&gt;critic_notes, attempts, *_approval,&lt;br&gt;outcome, pr_url&lt;br&gt;&lt;br&gt;Паузы — InMemorySaver, трейсы — LangSmith" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#ffffff;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="840" y="480" width="330" height="230" as="geometry"/></mxCell>
       </root>
     </mxGraphModel>
   </diagram>
