@@ -14,6 +14,7 @@ from bug_investigator.state import (
     BuildResult,
     InvestigationState,
     RelatedIssue,
+    ReproductionBuild,
     Verdict,
 )
 
@@ -65,7 +66,16 @@ class Stages(Protocol):
     def analyst(self, state: InvestigationState) -> Analysis: ...
     def planner(self, state: InvestigationState) -> str: ...
     def coder(self, state: InvestigationState) -> Fix: ...
-    def build(self, state: InvestigationState) -> BuildResult: ...
+    def build(self, state: InvestigationState) -> BuildResult:
+        """Build B: the working copy with the whole Fix."""
+        ...
+
+    def build_reproduction(self, state: InvestigationState) -> ReproductionBuild | None:
+        """Build A: the original code plus only the new and changed files under
+        `src/test/**` from the Fix; None if the Fix has no such files. The working
+        copy with the Fix stays as it was."""
+        ...
+
     def critic(self, state: InvestigationState) -> Critique: ...
     def publish(self, state: InvestigationState, title: str, body: str) -> str:
         """Commit the Fix, push its branch and open the Fix PR; returns the PR URL."""

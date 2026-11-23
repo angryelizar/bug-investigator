@@ -8,7 +8,7 @@ import subprocess
 from dataclasses import dataclass, field
 
 from bug_investigator.stages import AgentGaveUp
-from bug_investigator.state import Baseline, BuildResult
+from bug_investigator.state import Baseline, BuildResult, ReproductionBuild
 
 TIMEOUT_EXIT_CODE = 124
 _TAIL_LINES = 60
@@ -38,6 +38,15 @@ class Failures:
 def docker_build(workdir: str, timeout_s: int) -> BuildResult:
     exit_code, log = _run(workdir, timeout_s)
     return BuildResult(exit_code=exit_code, log_tail=_tail(log))
+
+
+def reproduction_build(workdir: str, timeout_s: int) -> ReproductionBuild:
+    """Build A, with the failed tests read from the log: a build that failed before any
+    test ran (e.g. on compilation) reproduces nothing."""
+    exit_code, log = _run(workdir, timeout_s)
+    return ReproductionBuild(
+        exit_code=exit_code, log_tail=_tail(log), failed_tests=parse_failures(log).tests
+    )
 
 
 def baseline(workdir: str, timeout_s: int) -> Baseline:

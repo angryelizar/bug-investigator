@@ -246,6 +246,8 @@ def _pause(pause: dict) -> str:
         pause.get("explanation", ""),
         f"**{fix_kind}**; сборка с тестами — код {build.get('exit_code')}",
     ]
+    if reproduction := pause.get("reproduction_build"):
+        parts.append(f"Только тесты из Fix на исходном коде — код {reproduction['exit_code']}")
     if pause.get("critic_notes"):
         parts.append(f"**Critic:** {pause['critic_notes']}")
     parts.append(f"```diff\n{pause.get('diff', '')}\n```")

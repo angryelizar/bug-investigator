@@ -2,6 +2,7 @@
 everything it says is already in the state.
 """
 
+from bug_investigator.executor import TIMEOUT_EXIT_CODE
 from bug_investigator.state import InvestigationState
 
 _MAX_TITLE_CHARS = 72
@@ -40,13 +41,24 @@ def _verification(state: InvestigationState) -> str:
         kind = "**Reproduced Fix**: Reproduction падает на исходном коде и проходит вместе с Fix."
     else:
         kind = (
-            "**Unreproduced Fix**: теста, который падал бы из-за бага, нет. Известно "
+            "**Unreproduced Fix**: теста, который падал бы из-за бага на исходном коде, "
+            "нет. Известно "
             "лишь, что Fix собирается и не ломает существующие тесты."
         )
     build = state.get("build_result")
-    result = (
-        f"Сборка с тестами (`docker build`) с Fix: код возврата {build['exit_code']}."
+    lines = [
+        f"- Сборка с тестами (`docker build`) с Fix: код возврата {build['exit_code']}."
         if build
-        else "Сборки с Fix не было."
-    )
-    return f"{kind}\n\n{result}"
+        else "- Сборки с Fix не было."
+    ]
+    if reproduction := state.get("reproduction_build"):
+        line = (
+            "- Сборка исходного кода только с тестами из Fix, без Fix: "
+            f"код возврата {reproduction['exit_code']}"
+        )
+        if reproduction["exit_code"] == TIMEOUT_EXIT_CODE:
+            line += " (прервана по таймауту)"
+        elif state.get("reproduced"):
+            line += "; упали " + ", ".join(f"`{t}`" for t in reproduction["failed_tests"])
+        lines.append(line + ".")
+    return f"{kind}\n\n" + "\n".join(lines)

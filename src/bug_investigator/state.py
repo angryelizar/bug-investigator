@@ -44,6 +44,12 @@ class Baseline(BuildResult):
     exceptions: list[str]  # simple names of exceptions the failed tests threw
 
 
+class ReproductionBuild(BuildResult):
+    """Build A: the original code plus only the Fix's tests."""
+
+    failed_tests: list[str]  # `TestClass.method`
+
+
 class RelatedIssue(TypedDict):
     number: int
     title: str
@@ -64,8 +70,11 @@ class InvestigationState(TypedDict):
     plan_approval: NotRequired[Approval]
     fix_diff: NotRequired[str]
     fix_explanation: NotRequired[str]
-    reproduced: NotRequired[bool]
-    build_result: NotRequired[BuildResult]
+    reproduced: NotRequired[bool]  # build A failed and build B passed
+    build_result: NotRequired[BuildResult]  # build B: the whole Fix
+    # Build A: the original code plus only the Fix's tests; None when it did not run
+    # (the Fix has no tests under src/test, or build B failed).
+    reproduction_build: NotRequired[ReproductionBuild | None]
     critic_notes: NotRequired[str]
     verification_passed: NotRequired[bool]  # build green, Fix not empty, Critic agreed
     attempts: NotRequired[int]
