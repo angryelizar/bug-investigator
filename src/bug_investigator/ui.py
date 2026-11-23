@@ -231,7 +231,14 @@ def _pause(pause: dict) -> str:
             "Доработать — Analyst пересмотрит Verdict с вашим комментарием."
         )
     if kind == "plan":
-        return f"### Plan Approval\n\n{pause['plan']}"
+        parts = [f"### Plan Approval — попытка {pause['attempt']} из {pause['max_attempts']}"]
+        if pause.get("rejected_fix_notes"):
+            parts.append(
+                "Прошлый Fix не прошёл Verification, поэтому Planner составил новый Plan. "
+                f"Причина:\n\n```text\n{pause['rejected_fix_notes']}\n```"
+            )
+        parts.append(pause["plan"])
+        return "\n\n".join(parts)
     build = pause.get("build_result") or {}
     fix_kind = "Reproduced Fix" if pause.get("reproduced") else "Unreproduced Fix"
     parts = [

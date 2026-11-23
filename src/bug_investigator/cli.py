@@ -140,7 +140,10 @@ def _print_pause(pause: dict) -> None:
     if kind == "not_a_bug":
         print(f"\n== Approval: Verdict «Не баг» ==\n{pause['summary']}")
     elif kind == "plan":
-        print(f"\n== Plan Approval ==\n{pause['plan']}")
+        print(f"\n== Plan Approval — попытка {pause['attempt']} из {pause['max_attempts']} ==")
+        if pause.get("rejected_fix_notes"):
+            print(f"Прошлый Fix не прошёл Verification:\n{pause['rejected_fix_notes']}\n")
+        print(pause["plan"])
     elif kind == "fix":
         build = pause.get("build_result") or {}
         fix_kind = "Reproduced Fix" if pause.get("reproduced") else "Unreproduced Fix"
