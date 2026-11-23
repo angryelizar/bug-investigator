@@ -89,7 +89,18 @@ def build_graph(stages: Stages, *, max_attempts: int = 3) -> CompiledStateGraph:
         return {"plan": stages.planner(state), "attempts": state.get("attempts", 0) + 1}
 
     def plan_approval(state: InvestigationState) -> dict:
-        approval = _ask({"kind": "plan", "plan": state.get("plan", "")})
+        attempt = state.get("attempts", 1)
+        approval = _ask(
+            {
+                "kind": "plan",
+                "plan": state.get("plan", ""),
+                "attempt": attempt,
+                "max_attempts": max_attempts,
+                # A second and later attempt comes only from the Critic loop: a human's
+                # revision resets the count. Show why the previous Fix was turned down.
+                "rejected_fix_notes": state.get("critic_notes", "") if attempt > 1 else "",
+            }
+        )
         update: dict = {"plan_approval": approval}
         if approval["decision"] == "revise":
             # A human's revision starts a fresh Planner → Critic budget.
