@@ -24,6 +24,16 @@ uv run chainlit run src/bug_investigator/ui.py    # http://localhost:8000
 
 Или из терминала: `uv run bug-investigator --issue https://github.com/<owner>/<repo>/issues/1`.
 
+**В Docker** (Linux, macOS, Windows): на машине нужен только Docker (на Windows — Docker Desktop в режиме Linux containers). Python, uv, git и `gh` уже есть в образе.
+
+```bash
+cp .env.example .env    # впишите ключи и GH_TOKEN — токен с правом push (`gh auth token`)
+docker compose up --build    # http://localhost:8000
+docker compose run --rm agent bug-investigator --issue https://github.com/<owner>/<repo>/issues/1
+```
+
+Агент запускает `docker build` Target Repository на Docker хоста через смонтированный `/var/run/docker.sock`, так что контейнер получает полный доступ к Docker машины. Из Git Bash запускайте только через `docker compose`: в `docker run -v` Git Bash портит Unix-пути.
+
 **Провайдер.** Берите OpenAI (`BI_PROVIDER=openai`) или платный тариф Groq. На бесплатных тарифах Investigation упирается в лимит токенов в минуту и не доходит до конца. Полный прогон трёх багов на OpenAI стоил около $1.
 
 **Target Repository** должен иметь в корне `Dockerfile`, который компилирует проект и прогоняет тесты (для Maven — `mvn package` без `-DskipTests`). Тесты не должны требовать внешних сервисов и должны лежать под `src/test/**`.
