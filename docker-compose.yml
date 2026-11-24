@@ -1,0 +1,15 @@
+# docker compose up --build    → UI at http://localhost:8000
+# docker compose run --rm agent bug-investigator --issue <link>    → terminal mode
+services:
+  agent:
+    build: .
+    image: bug-investigator
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      # The agent's `docker build` of the Target Repository runs on the host's daemon.
+      # Works the same on Linux, macOS and Windows (Docker Desktop, Linux containers).
+      - /var/run/docker.sock:/var/run/docker.sock
+    stdin_open: true
+    tty: true

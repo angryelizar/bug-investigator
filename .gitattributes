@@ -1,0 +1,5 @@
+# Files read inside the Linux container must keep LF even with core.autocrlf on Windows.
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.sh text eol=lf
+.env.example text eol=lf

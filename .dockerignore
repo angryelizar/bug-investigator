@@ -1,0 +1,13 @@
+.git
+.env
+.venv
+.chainlit
+chainlit.md
+.scratch
+.claude
+.agents
+.pytest_cache
+.ruff_cache
+**/__pycache__
+tests
+docs
